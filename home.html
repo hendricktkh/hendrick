@@ -289,9 +289,61 @@
     .about-blob { animation: none; }
     * { transition: none !important; }
   }
+
+  /* ---------- Loader ---------- */
+  #loader {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity .5s ease, visibility .5s ease;
+  }
+  body.dark #loader { background: var(--bg-dark); }
+  #loader.hidden { opacity: 0; visibility: hidden; }
+  .loader-dot-group { display: flex; gap: 10px; }
+  .loader-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: bounce 0.6s ease-in-out infinite alternate;
+  }
+  body.dark .loader-dot { background: var(--accent-dm); }
+  .loader-dot:nth-child(2) { animation-delay: .15s; background: var(--accent-2); }
+  body.dark .loader-dot:nth-child(2) { background: var(--accent-2-dm); }
+  .loader-dot:nth-child(3) { animation-delay: .3s; }
+  @keyframes bounce {
+    to { transform: translateY(-16px); }
+  }
+
+  /* ---------- GitHub project cards loading state ---------- */
+  .card.skeleton h3, .card.skeleton p, .card.skeleton .tag {
+    background: var(--bg);
+    color: transparent;
+    border-radius: 6px;
+    box-shadow: none;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  body.dark .card.skeleton h3, body.dark .card.skeleton p, body.dark .card.skeleton .tag {
+    background: var(--bg-dark);
+  }
+  @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+  .card .stars { font-size: 0.8rem; opacity: 0.6; margin-left: 0.4rem; }
 </style>
 </head>
 <body>
+
+<div id="loader">
+  <div class="loader-dot-group">
+    <div class="loader-dot"></div>
+    <div class="loader-dot"></div>
+    <div class="loader-dot"></div>
+  </div>
+</div>
+
+<canvas id="confetti-canvas" style="position:fixed; inset:0; pointer-events:none; z-index:9998;"></canvas>
 
 <div id="blob"></div>
 
@@ -318,35 +370,12 @@
 
   <section id="work">
     <h2 class="section-title">Things I've made<span class="dot">.</span></h2>
-    <div class="grid">
-
-      <div class="card">
-        <h3>Project One</h3>
-        <p>A short, honest description of what this project does and why you made it.</p>
-        <div>
-          <span class="tag">JavaScript</span><span class="tag">Fun</span>
-        </div>
-        <a href="#">View project →</a>
-      </div>
-
-      <div class="card">
-        <h3>Project Two</h3>
-        <p>Another project. Swap this out for something real once you've got it on GitHub.</p>
-        <div>
-          <span class="tag">Python</span><span class="tag">Experiment</span>
-        </div>
-        <a href="#">View project →</a>
-      </div>
-
-      <div class="card">
-        <h3>Project Three</h3>
-        <p>Keep these short — a sentence or two on what it is and what you learned.</p>
-        <div>
-          <span class="tag">CSS</span><span class="tag">Design</span>
-        </div>
-        <a href="#">View project →</a>
-      </div>
-
+    <!-- Set your GitHub username below to pull repos live -->
+    <div class="grid" id="project-grid" data-github-user="your-github-username">
+      <!-- Skeleton cards while repos load, replaced by JS -->
+      <div class="card skeleton"><h3>Loading repo name</h3><p>Loading a short repo description that takes up roughly two lines of space here.</p><span class="tag">tag</span></div>
+      <div class="card skeleton"><h3>Loading repo name</h3><p>Loading a short repo description that takes up roughly two lines of space here.</p><span class="tag">tag</span></div>
+      <div class="card skeleton"><h3>Loading repo name</h3><p>Loading a short repo description that takes up roughly two lines of space here.</p><span class="tag">tag</span></div>
     </div>
   </section>
 
@@ -415,6 +444,115 @@
     });
   }, { threshold: 0.15 });
   sections.forEach(s => obs.observe(s));
+
+  // ---------- Loader ----------
+  window.addEventListener('load', () => {
+    setTimeout(() => document.getElementById('loader').classList.add('hidden'), 500);
+  });
+
+  // ---------- Live GitHub repos ----------
+  function tiltify(card) {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+      card.style.transform = `perspective(600px) rotateX(${-y / 20}deg) rotateY(${x / 20}deg) translateY(-4px)`;
+    });
+    card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+  }
+
+  async function loadRepos() {
+    const grid = document.getElementById('project-grid');
+    const user = grid.dataset.githubUser;
+    if (!user || user === 'your-github-username') return; // not configured yet, keep placeholder cards
+
+    try {
+      const res = await fetch(`https://api.github.com/users/${user}/repos?sort=updated&per_page=6`);
+      if (!res.ok) throw new Error('GitHub API request failed');
+      const repos = await res.json();
+      const shown = repos.filter(r => !r.fork).slice(0, 6);
+
+      if (shown.length === 0) return;
+
+      grid.innerHTML = '';
+      shown.forEach(repo => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <h3>${repo.name}<span class="stars">${repo.stargazers_count ? '★ ' + repo.stargazers_count : ''}</span></h3>
+          <p>${repo.description ? repo.description : 'No description yet — add one on GitHub.'}</p>
+          <div>${repo.language ? `<span class="tag">${repo.language}</span>` : ''}</div>
+          <a href="${repo.html_url}" target="_blank" rel="noopener">View on GitHub →</a>
+        `;
+        grid.appendChild(card);
+        tiltify(card);
+      });
+    } catch (err) {
+      console.warn('Could not load GitHub repos:', err);
+      // leave skeleton/placeholder cards as a graceful fallback
+    }
+  }
+  loadRepos();
+
+  // ---------- Confetti easter egg ----------
+  const confettiCanvas = document.getElementById('confetti-canvas');
+  const ctx = confettiCanvas.getContext('2d');
+  function resizeCanvas() {
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  const confettiColors = ['#ff6b5e', '#6ee7c7', '#b26bff', '#ff6ec7', '#ffd166'];
+  let particles = [];
+
+  function burstConfetti(x, y) {
+    for (let i = 0; i < 26; i++) {
+      particles.push({
+        x, y,
+        vx: (Math.random() - 0.5) * 8,
+        vy: Math.random() * -8 - 2,
+        size: Math.random() * 6 + 4,
+        color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+        rotation: Math.random() * Math.PI * 2,
+        spin: (Math.random() - 0.5) * 0.3,
+        life: 0
+      });
+    }
+    if (!animating) { animating = true; animateConfetti(); }
+  }
+
+  let animating = false;
+  function animateConfetti() {
+    ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    particles.forEach(p => {
+      p.vy += 0.25; // gravity
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rotation += p.spin;
+      p.life++;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+      ctx.restore();
+    });
+    particles = particles.filter(p => p.life < 120 && p.y < confettiCanvas.height + 40);
+    if (particles.length > 0) {
+      requestAnimationFrame(animateConfetti);
+    } else {
+      animating = false;
+      ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    }
+  }
+
+  document.addEventListener('click', e => {
+    // skip confetti on toggle so theme switching stays quiet
+    if (e.target.closest('#themeToggle')) return;
+    burstConfetti(e.clientX, e.clientY);
+  });
 </script>
 
 </body>
