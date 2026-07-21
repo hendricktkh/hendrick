@@ -7,17 +7,19 @@
 <style>
   :root {
     --bg: #e8ebf0;
-    --bg-dark: #1c1e26;
+    --bg-dark: #150a24;
     --panel: #e8ebf0;
-    --panel-dark: #23262f;
+    --panel-dark: #1f1033;
     --shadow-light: #ffffff;
     --shadow-dark: #c3c8d1;
-    --shadow-light-dm: #2c2f3a;
-    --shadow-dark-dm: #12131a;
+    --shadow-light-dm: #2c1848;
+    --shadow-dark-dm: #0a0416;
     --text: #2c2e33;
-    --text-dark: #e6e8ee;
+    --text-dark: #e9e2f7;
     --accent: #ff6b5e;
     --accent-2: #6ee7c7;
+    --accent-dm: #b26bff;
+    --accent-2-dm: #ff6ec7;
     --font-display: 'Fraunces', Georgia, serif;
     --font-body: 'Space Grotesk', system-ui, sans-serif;
   }
@@ -53,7 +55,7 @@
     transition: width .2s, height .2s, opacity .2s;
     mix-blend-mode: multiply;
   }
-  body.dark #blob { mix-blend-mode: screen; }
+  body.dark #blob { mix-blend-mode: screen; background: var(--accent-dm); }
 
   /* ---------- Layout ---------- */
   header {
@@ -105,7 +107,7 @@
     background: var(--accent);
     transition: transform .3s ease;
   }
-  body.dark .toggle::after { transform: translateX(24px); background: var(--accent-2); }
+  body.dark .toggle::after { transform: translateX(24px); background: var(--accent-dm); }
 
   main { max-width: 1000px; margin: 0 auto; padding: 0 2rem; }
 
@@ -129,6 +131,9 @@
     color: var(--accent);
     font-style: italic;
   }
+  body.dark .hero h1 span { color: var(--accent-dm); }
+  body.dark .section-title .dot { color: var(--accent-dm); }
+  body.dark .card a { color: var(--accent-dm); }
 
   .hero p {
     font-size: 1.1rem;
@@ -174,6 +179,10 @@
     color: #fff;
     box-shadow: 6px 6px 14px rgba(255,107,94,0.35);
   }
+  body.dark .btn.primary {
+    background: linear-gradient(135deg, var(--accent-dm), var(--accent-2-dm));
+    box-shadow: 6px 6px 16px rgba(178,107,255,0.35);
+  }
 
   /* ---------- Section headings ---------- */
   section { padding: 5rem 0; }
@@ -182,7 +191,8 @@
     font-size: 2rem;
     margin-bottom: 2rem;
   }
-  .section-title .dot { color: var(--accent); }
+  .section-title .dot, .contact .dot { color: var(--accent); }
+  body.dark .contact .dot { color: var(--accent-dm); }
 
   /* ---------- Project cards ---------- */
   .grid {
@@ -239,6 +249,10 @@
     border-radius: 45% 55% 60% 40% / 50% 45% 55% 50%;
     background: linear-gradient(135deg, var(--accent), var(--accent-2));
     animation: morph 8s ease-in-out infinite;
+  }
+  body.dark .about-blob {
+    background: linear-gradient(135deg, #2a0f4d, #7a2fbf 55%, #ff6ec7);
+    box-shadow: 0 0 60px rgba(178,107,255,0.35);
   }
   @keyframes morph {
     0%, 100% { border-radius: 45% 55% 60% 40% / 50% 45% 55% 50%; }
@@ -345,7 +359,7 @@
   </section>
 
   <section id="contact" class="contact">
-    <h2>Let's talk<span style="color:var(--accent)">.</span></h2>
+    <h2>Let's talk<span class="dot">.</span></h2>
     <p>Find me on the internet, or just send an email.</p>
     <button class="btn primary" onclick="window.location.href='mailto:you@example.com'">Email me</button>
   </section>
