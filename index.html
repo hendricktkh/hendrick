@@ -198,8 +198,15 @@
   /* ---------- Project cards ---------- */
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.5rem;
+    max-width: 900px;
+  }
+  @media (max-width: 800px) {
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 550px) {
+    .grid { grid-template-columns: 1fr; }
   }
 
   .card {
@@ -616,11 +623,35 @@
   <section id="work">
     <h2 class="section-title">have a look at what i've made<span class="dot">.</span></h2>
     <!-- Set your GitHub username below to pull repos live -->
-    <div class="grid" id="project-grid" data-github-user="hendricktkh">
-      <!-- Skeleton cards while repos load, replaced by JS -->
-      <div class="card skeleton"><h3>Loading repo name</h3><p>Loading a short repo description that takes up roughly two lines of space here.</p><span class="tag">tag</span></div>
-      <div class="card skeleton"><h3>Loading repo name</h3><p>Loading a short repo description that takes up roughly two lines of space here.</p><span class="tag">tag</span></div>
-      <div class="card skeleton"><h3>Loading repo name</h3><p>Loading a short repo description that takes up roughly two lines of space here.</p><span class="tag">tag</span></div>
+    <div class="grid">
+
+      <div class="card">
+        <h3>Project Name</h3>
+        <p>What it is, what it does, why you made it. A sentence or two is plenty — this is the part people actually read.</p>
+        <div>
+          <span class="tag">JavaScript</span><span class="tag">Fun</span>
+        </div>
+        <a href="https://github.com/hendricktkh/REPO-NAME" target="_blank" rel="noopener">code ↗</a>
+      </div>
+
+      <div class="card">
+        <h3>Project Name</h3>
+        <p>What it is, what it does, why you made it. A sentence or two is plenty — this is the part people actually read.</p>
+        <div>
+          <span class="tag">Python</span><span class="tag">Experiment</span>
+        </div>
+        <a href="https://github.com/hendricktkh/REPO-NAME" target="_blank" rel="noopener">code ↗</a>
+      </div>
+
+      <div class="card">
+        <h3>Project Name</h3>
+        <p>What it is, what it does, why you made it. A sentence or two is plenty — this is the part people actually read.</p>
+        <div>
+          <span class="tag">CSS</span><span class="tag">Design</span>
+        </div>
+        <a href="https://github.com/hendricktkh/REPO-NAME" target="_blank" rel="noopener">code ↗</a>
+      </div>
+
     </div>
   </section>
 
@@ -671,7 +702,7 @@
       const rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left - rect.width / 2;
       const y = e.clientY - rect.top - rect.height / 2;
-      card.style.transform = `perspective(600px) rotateX(${-y / 20}deg) rotateY(${x / 20}deg) translateY(-4px)`;
+      card.style.transform = `perspective(800px) rotateX(${-y / 45}deg) rotateY(${x / 45}deg) translateY(-2px)`;
     });
     card.addEventListener('mouseleave', () => { card.style.transform = ''; });
   });
@@ -707,49 +738,8 @@
     setTimeout(() => document.getElementById('loader').classList.add('hidden'), 600);
   });
 
-  // ---------- Live GitHub repos ----------
-  function tiltify(card) {
-    card.addEventListener('mousemove', e => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left - rect.width / 2;
-      const y = e.clientY - rect.top - rect.height / 2;
-      card.style.transform = `perspective(600px) rotateX(${-y / 20}deg) rotateY(${x / 20}deg) translateY(-4px)`;
-    });
-    card.addEventListener('mouseleave', () => { card.style.transform = ''; });
-  }
-
-  async function loadRepos() {
-    const grid = document.getElementById('project-grid');
-    const user = grid.dataset.githubUser;
-    if (!user || user === 'your-github-username') return; // not configured yet, keep placeholder cards
-
-    try {
-      const res = await fetch(`https://api.github.com/users/${user}/repos?sort=updated&per_page=6`);
-      if (!res.ok) throw new Error('GitHub API request failed');
-      const repos = await res.json();
-      const shown = repos.filter(r => !r.fork).slice(0, 6);
-
-      if (shown.length === 0) return;
-
-      grid.innerHTML = '';
-      shown.forEach(repo => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <h3>${repo.name}<span class="stars">${repo.stargazers_count ? '★ ' + repo.stargazers_count : ''}</span></h3>
-          <p>${repo.description ? repo.description : 'No description yet — add one on GitHub.'}</p>
-          <div>${repo.language ? `<span class="tag">${repo.language}</span>` : ''}</div>
-          <a href="${repo.html_url}" target="_blank" rel="noopener">View on GitHub →</a>
-        `;
-        grid.appendChild(card);
-        tiltify(card);
-      });
-    } catch (err) {
-      console.warn('Could not load GitHub repos:', err);
-      // leave skeleton/placeholder cards as a graceful fallback
-    }
-  }
-  loadRepos();
+  // (Live GitHub repo pulling removed — project cards are now hand-written above,
+  // each with a small "code ↗" link to the actual repo at the bottom.)
 
   // ---------- Live Spotify "Now Playing" data ----------
   async function loadNowPlaying() {
