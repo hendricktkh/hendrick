@@ -7,8 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400;1,600&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
 <style>
   :root {
     --bg: #e8ebf0;
@@ -219,45 +218,57 @@
   /* ---------- Layout ---------- */
   main { max-width: 1000px; margin: 0 auto; padding: 0 2rem; }
 
-  /* ---------- Hero: explosion zone ---------- */
-  .hero-explosion-wrapper {
-    min-height: 85vh;
-    position: relative;
+  /* ---------- Hero: greeting marquee ---------- */
+  .hero-greet {
+    min-height: 80vh;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    padding-bottom: 1rem;
-    overflow: visible;
+    justify-content: center;
+    overflow: hidden;
+    padding: 3rem 0;
+    margin: 0 -2rem;
   }
 
-  .explosion-letters {
+  .greet-row {
     display: flex;
-    flex-wrap: wrap;
-    line-height: 1;
-    padding-left: 0;
+    overflow: hidden;
+    margin-bottom: 1.4rem;
+  }
+  .greet-row:last-child { margin-bottom: 0; }
+
+  .greet-track {
+    display: flex;
+    width: max-content;
+    gap: 2.6rem;
+    will-change: transform;
+    user-select: none;
   }
 
-  .explosion-letters .letter {
+  .greet-track span {
     font-family: var(--font-display);
-    font-size: clamp(3rem, 9vw, 6rem);
-    font-weight: 600;
-    line-height: 1;
-    display: inline-block;
-    will-change: transform;
+    font-size: clamp(1.6rem, 3.8vw, 2.4rem);
+    font-weight: 400;
     color: var(--text);
+    white-space: nowrap;
+    letter-spacing: -0.01em;
+    line-height: 1;
     transition: color .4s ease;
   }
-  body.dark .explosion-letters .letter { color: var(--text-dark); }
+  body.dark .greet-track span { color: var(--text-dark); }
 
-  .explosion-letters .letter.accent-letter {
-    color: var(--accent);
-    font-style: italic;
-  }
-  body.dark .explosion-letters .letter.accent-letter { color: var(--accent-dm); }
+  .greet-track span.g-mid { opacity: 0.45; }
+  .greet-track span.g-dim { opacity: 0.2; font-style: italic; }
+  .greet-track span.g-dot { opacity: 0.15; font-style: normal; font-family: var(--font-body); }
 
-  .explosion-letters .letter-space {
-    display: inline-block;
-    width: 0.35em;
+  .greet-row.go-left  .greet-track { animation: gScrollLeft  38s linear infinite; }
+  .greet-row.go-right .greet-track { animation: gScrollRight 44s linear infinite; }
+  .greet-row.go-left.s2 .greet-track { animation-duration: 50s; }
+
+  @keyframes gScrollLeft  { from { transform: translateX(0); }    to { transform: translateX(-50%); } }
+  @keyframes gScrollRight { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .greet-track { animation: none !important; }
   }
 
   /* ---------- Hero: static text section ---------- */
@@ -759,17 +770,152 @@
 
 <main>
 
-  <!-- ===== HERO: Letter Explosion Zone ===== -->
-  <div class="hero-explosion-wrapper" id="hero-explosion-wrapper">
-    <div id="explosion-container" style="padding-bottom: 2rem;">
-      <div class="explosion-letters" id="letters-line1" style="margin-bottom: 0.1em;"></div>
-      <div class="explosion-letters" id="letters-line2"></div>
+  <!-- ===== HERO: Marquee ===== -->
+  <style>
+.greet-wrap {
+  padding: 3rem 0;
+  overflow: hidden;
+  background: transparent;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+.greet-track {
+  display: flex;
+  width: max-content;
+  gap: 2.8rem;
+  will-change: transform;
+}
+.greet-track span {
+  font-family: var(--font-voice, Georgia, serif);
+  font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+  font-weight: 400;
+  color: var(--text-primary);
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+.greet-track span.dim {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.greet-track span.mid {
+  color: var(--text-secondary);
+}
+.row-left .greet-track {
+  animation: scrollLeft 38s linear infinite;
+}
+.row-right .greet-track {
+  animation: scrollRight 42s linear infinite;
+}
+@keyframes scrollLeft {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes scrollRight {
+  0%   { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+.dot {
+  opacity: 0.25;
+  font-style: normal;
+  font-family: var(--font-sans);
+}
+  </style>
+
+  <div class="greet-wrap" aria-hidden="true">
+  <div class="row-left" style="display:flex;overflow:hidden;">
+    <div class="greet-track" id="row1">
+      <span>hola</span><span class="dot">·</span>
+      <span class="dim">こんにちは</span><span class="dot">·</span>
+      <span class="mid">bonjour</span><span class="dot">·</span>
+      <span>안녕하세요</span><span class="dot">·</span>
+      <span class="dim">ciao</span><span class="dot">·</span>
+      <span class="mid">مرحبا</span><span class="dot">·</span>
+      <span>hei</span><span class="dot">·</span>
+      <span class="dim">olá</span><span class="dot">·</span>
+      <span class="mid">你好</span><span class="dot">·</span>
+      <span>привет</span><span class="dot">·</span>
+      <span class="dim">salut</span><span class="dot">·</span>
+      <span class="mid">नमस्ते</span><span class="dot">·</span>
+      <span>hola</span><span class="dot">·</span>
+      <span class="dim">こんにちは</span><span class="dot">·</span>
+      <span class="mid">bonjour</span><span class="dot">·</span>
+      <span>안녕하세요</span><span class="dot">·</span>
+      <span class="dim">ciao</span><span class="dot">·</span>
+      <span class="mid">مرحبا</span><span class="dot">·</span>
+      <span>hei</span><span class="dot">·</span>
+      <span class="dim">olá</span><span class="dot">·</span>
+      <span class="mid">你好</span><span class="dot">·</span>
+      <span>привет</span><span class="dot">·</span>
+      <span class="dim">salut</span><span class="dot">·</span>
+      <span class="mid">नमस्ते</span><span class="dot">·</span>
     </div>
   </div>
 
+  <div class="row-right" style="display:flex;overflow:hidden;">
+    <div class="greet-track">
+      <span class="mid">Hallo</span><span class="dot">·</span>
+      <span class="dim">سلام</span><span class="dot">·</span>
+      <span>sawubona</span><span class="dot">·</span>
+      <span class="mid">γεια</span><span class="dot">·</span>
+      <span class="dim">שלום</span><span class="dot">·</span>
+      <span>merhaba</span><span class="dot">·</span>
+      <span class="mid">xin chào</span><span class="dot">·</span>
+      <span class="dim">hej</span><span class="dot">·</span>
+      <span>kumusta</span><span class="dot">·</span>
+      <span class="mid">aloha</span><span class="dot">·</span>
+      <span class="dim">cześć</span><span class="dot">·</span>
+      <span>szia</span><span class="dot">·</span>
+      <span class="mid">Hallo</span><span class="dot">·</span>
+      <span class="dim">سلام</span><span class="dot">·</span>
+      <span>sawubona</span><span class="dot">·</span>
+      <span class="mid">γεια</span><span class="dot">·</span>
+      <span class="dim">שלום</span><span class="dot">·</span>
+      <span>merhaba</span><span class="dot">·</span>
+      <span class="mid">xin chào</span><span class="dot">·</span>
+      <span class="dim">hej</span><span class="dot">·</span>
+      <span>kumusta</span><span class="dot">·</span>
+      <span class="mid">aloha</span><span class="dot">·</span>
+      <span class="dim">cześć</span><span class="dot">·</span>
+      <span>szia</span><span class="dot">·</span>
+    </div>
+  </div>
+
+  <div class="row-left" style="display:flex;overflow:hidden;">
+    <div class="greet-track" style="animation-duration:46s;">
+      <span class="dim">dobrý den</span><span class="dot">·</span>
+      <span>ਸਤ ਸ੍ਰੀ ਅਕਾਲ</span><span class="dot">·</span>
+      <span class="mid">góðan dag</span><span class="dot">·</span>
+      <span class="dim">hujambo</span><span class="dot">·</span>
+      <span>konnichiwa</span><span class="dot">·</span>
+      <span class="mid">buna</span><span class="dot">·</span>
+      <span class="dim">ey</span><span class="dot">·</span>
+      <span>kaixo</span><span class="dot">·</span>
+      <span class="mid">zdravo</span><span class="dot">·</span>
+      <span class="dim">mingalaba</span><span class="dot">·</span>
+      <span>tere</span><span class="dot">·</span>
+      <span class="mid">labas</span><span class="dot">·</span>
+      <span class="dim">dobrý den</span><span class="dot">·</span>
+      <span>ਸਤ ਸ੍ਰੀ ਅਕਾਲ</span><span class="dot">·</span>
+      <span class="mid">góðan dag</span><span class="dot">·</span>
+      <span class="dim">hujambo</span><span class="dot">·</span>
+      <span>konnichiwa</span><span class="dot">·</span>
+      <span class="mid">buna</span><span class="dot">·</span>
+      <span class="dim">ey</span><span class="dot">·</span>
+      <span>kaixo</span><span class="dot">·</span>
+      <span class="mid">zdravo</span><span class="dot">·</span>
+      <span class="dim">mingalaba</span><span class="dot">·</span>
+      <span>tere</span><span class="dot">·</span>
+      <span class="mid">labas</span><span class="dot">·</span>
+    </div>
+  </div>
+</div>
+
   <!-- ===== HERO: Static text + CTA ===== -->
   <section class="hero-static" id="hero-static" style="padding-top: 2.5rem; padding-bottom: 3rem;">
-    <p>hola, me llamo hendrick. in this world of constant consuming, i try to create. this is it.</p>
+    <p>hello, my name is hendrick. in this world of constant consuming, i try to create. this is it.</p>
     <div class="cta">
       <button class="btn primary magnetic" id="btn-see-work"><span class="btn-label">see my work</span></button>
       <button class="btn magnetic" id="btn-say-hi">say hi</button>
@@ -892,59 +1038,6 @@
 </footer>
 
 <script>
-  // ============================================================
-  // GSAP Letter Explosion Hero
-  // ============================================================
-  gsap.registerPlugin(ScrollTrigger);
-
-  function getRandomSpeed() { return 0.8 + Math.random() * 0.7; }
-  function getRandomRotation() { return Math.random() * 60 - 30; }
-
-  function buildLetterLine(container, text, accentChars = []) {
-    for (let i = 0; i < text.length; i++) {
-      const ch = text[i];
-      if (ch === ' ') {
-        const space = document.createElement('span');
-        space.className = 'letter-space';
-        container.appendChild(space);
-      } else {
-        const div = document.createElement('div');
-        div.className = 'letter' + (accentChars.includes(i) ? ' accent-letter' : '');
-        div.dataset.speed = getRandomSpeed();
-        div.textContent = ch;
-        container.appendChild(div);
-      }
-    }
-  }
-
-  buildLetterLine(document.getElementById('letters-line1'), 'i do');
-  buildLetterLine(document.getElementById('letters-line2'), 'things.');
-
-  function initLetterExplosion() {
-    const allLetters = document.querySelectorAll('.explosion-letters .letter');
-    const wrapper = document.getElementById('hero-explosion-wrapper');
-    allLetters.forEach(letter => {
-      const speed = parseFloat(letter.dataset.speed || '1');
-      gsap.to(letter, {
-        y: (1 - speed) * ScrollTrigger.maxScroll(window) * 0.6,
-        rotation: getRandomRotation(),
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: wrapper,
-          start: 'top top',
-          end: 'bottom top',
-          scrub: 0.6,
-          invalidateOnRefresh: true
-        }
-      });
-    });
-  }
-
-  window.addEventListener('load', () => {
-    setTimeout(initLetterExplosion, 650);
-    ScrollTrigger.addEventListener('refreshInit', () => ScrollTrigger.refresh());
-  });
-
   // ============================================================
   // Right-side progress nav
   // ============================================================
