@@ -972,6 +972,7 @@
 
   const confettiColors = ['#ff6b5e', '#6ee7c7', '#b26bff', '#ff6ec7', '#ffd166'];
   let particles = [];
+  let animating = false;
 
   function burstConfetti(x, y, count = 6) {
     for (let i = 0; i < count; i++) {
@@ -987,19 +988,27 @@
         maxLife: 120
       });
     }
-    if (!animating) { animating = true; animateConfetti(); }
+    if (!animating) { animating = true; requestAnimationFrame(animateConfetti); }
   }
 
-  let animating = false;
-  function animateConfetti() {
+  let lastFrameTime = null;
+  function animateConfetti(now) {
+    if (lastFrameTime === null) lastFrameTime = now;
+    // delta-time scaling keeps motion speed consistent regardless of frame rate hiccups
+    const dt = Math.min((now - lastFrameTime) / (1000 / 60), 2.5);
+    lastFrameTime = now;
+
     ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
     particles.forEach(p => {
-      p.vy += 0.2; // gravity
-      p.x += p.vx;
-      p.y += p.vy;
-      p.rotation += p.spin;
-      p.life++;
+      p.vy += 0.2 * dt; // gravity
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.rotation += p.spin * dt;
+      p.life += dt;
+      const fadeStart = p.maxLife * 0.8;
+      const alpha = p.life > fadeStart ? Math.max(0, 1 - (p.life - fadeStart) / (p.maxLife - fadeStart)) : 1;
       ctx.save();
+      ctx.globalAlpha = alpha;
       ctx.translate(p.x, p.y);
       ctx.rotate(p.rotation);
       ctx.fillStyle = p.color;
@@ -1011,20 +1020,16 @@
       requestAnimationFrame(animateConfetti);
     } else {
       animating = false;
+      lastFrameTime = null;
       ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
     }
   }
-
-  // Track cursor position for the storm mode below
-  let lastMouseX = window.innerWidth / 2;
-  let lastMouseY = window.innerHeight / 2;
-  window.addEventListener('mousemove', e => { lastMouseX = e.clientX; lastMouseY = e.clientY; });
 
   let storming = false;
   function startConfettiFill() {
     storming = true;
     const fps = 60;
-    const durationMs = 4000; // 4 seconds total, continuous spawn (not staggered waves)
+    const durationMs = 6000; // 6 seconds total, continuous spawn (not staggered waves)
     const totalFrames = Math.round((durationMs / 1000) * fps);
     const startTime = performance.now();
 
@@ -1042,10 +1047,10 @@
           rotation: Math.random() * Math.PI * 2,
           spin: (Math.random() - 0.5) * 0.25,
           life: 0,
-          maxLife: Math.max(framesLeft, 20) // everything still clears out by the 4s mark
+          maxLife: Math.max(framesLeft, 20) // everything still clears out by the 6s mark
         });
       }
-      if (!animating) { animating = true; animateConfetti(); }
+      if (!animating) { animating = true; requestAnimationFrame(animateConfetti); }
     }, 40); // continuous spawn tick, not discrete waves
 
     setTimeout(() => {
@@ -1054,17 +1059,28 @@
     }, durationMs);
   }
 
+  // Clicks only count toward the big fill if they land in quick succession.
+  // A gap longer than this resets the streak back to 1 instead of continuing the count.
+  const CONSECUTIVE_CLICK_WINDOW_MS = 600;
+
   let confettiClickCount = 0;
+  let lastClickTime = 0;
   document.addEventListener('click', e => {
     // skip confetti on toggle so theme switching stays quiet
     if (e.target.closest('#themeToggle')) return;
     if (storming) return; // fill mode is already running, ignore extra clicks until it's done
 
-    confettiClickCount++;
+    const now = performance.now();
+    if (now - lastClickTime > CONSECUTIVE_CLICK_WINDOW_MS) {
+      confettiClickCount = 1; // too slow, streak broken — start over
+    } else {
+      confettiClickCount++;
+    }
+    lastClickTime = now;
 
     if (confettiClickCount >= 10) {
       startConfettiFill();
-      confettiClickCount = 0; // resets so the gradual buildup starts fresh toward the next fill
+      confettiClickCount = 0; // resets so the streak starts fresh toward the next fill
     } else {
       const scaledCount = 3 + confettiClickCount * 2; // small, clearly gradual growth: 5, 7, 9, 11...
       burstConfetti(e.clientX, e.clientY, scaledCount);
