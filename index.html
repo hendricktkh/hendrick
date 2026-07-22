@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Name — hi, I'm here</title>
+<title>hendrick</title>
 <style>
   :root {
     --bg: #e8ebf0;
@@ -105,9 +105,10 @@
     width: 24px; height: 24px;
     border-radius: 50%;
     background: var(--accent);
+    transform: translateX(24px);
     transition: transform .3s ease;
   }
-  body.dark .toggle::after { transform: translateX(24px); background: var(--accent-dm); }
+  body.dark .toggle::after { transform: translateX(0); background: var(--accent-dm); }
 
   main { max-width: 1000px; margin: 0 auto; padding: 0 2rem; }
 
@@ -592,7 +593,7 @@
 <div id="blob"></div>
 
 <header>
-  <div class="logo">yourname.</div>
+  <div class="logo">hendrick.</div>
   <nav>
     <a href="#work">Work</a>
     <a href="#about">About</a>
@@ -604,18 +605,18 @@
 <main>
 
   <section class="hero">
-    <h1>I build things<br>that are <span>a little</span> weird.</h1>
-    <p>Hi, I'm [Your Name] — I make websites, small tools, and experiments. This is my corner of the internet, vibecoded into existence.</p>
+    <h1>i build things<br>that are <span>(i hope)</span> fun.</h1>
+    <p> hola, me llamo hendrick. in this world of constant consuming, i try to create. this is it.</p>
     <div class="cta">
-      <button class="btn primary" onclick="document.getElementById('work').scrollIntoView()">See my work</button>
-      <button class="btn" onclick="document.getElementById('contact').scrollIntoView()">Say hi</button>
+      <button class="btn primary" onclick="document.getElementById('work').scrollIntoView()">see my work</button>
+      <button class="btn" onclick="document.getElementById('contact').scrollIntoView()">say hi</button>
     </div>
   </section>
 
   <section id="work">
-    <h2 class="section-title">Things I've made<span class="dot">.</span></h2>
+    <h2 class="section-title">have a look at what i've made<span class="dot">.</span></h2>
     <!-- Set your GitHub username below to pull repos live -->
-    <div class="grid" id="project-grid" data-github-user="your-github-username">
+    <div class="grid" id="project-grid" data-github-user="hendricktkh">
       <!-- Skeleton cards while repos load, replaced by JS -->
       <div class="card skeleton"><h3>Loading repo name</h3><p>Loading a short repo description that takes up roughly two lines of space here.</p><span class="tag">tag</span></div>
       <div class="card skeleton"><h3>Loading repo name</h3><p>Loading a short repo description that takes up roughly two lines of space here.</p><span class="tag">tag</span></div>
@@ -627,20 +628,20 @@
     <div class="about-blob"></div>
     <div>
       <h2 class="section-title">About<span class="dot">.</span></h2>
-      <p>Write a couple of paragraphs here about who you are, what you're into, and what you're currently learning. Doesn't need to be formal — this is your space. Talk about the tools you like, the things you're bad at, whatever feels true.</p>
+      <p>i like music. Write a couple of paragraphs here about who you are, what you're into, and what you're currently learning. Doesn't need to be formal — this is your space. Talk about the tools you like, the things you're bad at, whatever feels true.</p>
     </div>
   </section>
 
   <section id="contact" class="contact">
-    <h2>Let's talk<span class="dot">.</span></h2>
-    <p>Find me on the internet, or just send an email.</p>
-    <button class="btn primary" onclick="window.location.href='mailto:you@example.com'">Email me</button>
+    <h2>wanna chat?<span class="dot">.</span></h2>
+    <p>i'm all over on the internet. find me or just send an email.</p>
+    <button class="btn primary" onclick="window.location.href='mailto:hendricktkh@gmail.com'">Email me</button>
   </section>
 
 </main>
 
 <footer>
-  built with too much coffee & vibecoding · hosted on GitHub Pages
+  built with my feeble fingers · hosted on GitHub Pages
 </footer>
 
 <script>
@@ -759,6 +760,36 @@
     }
   }
   loadRepos();
+
+  // ---------- Live Spotify "Now Playing" data ----------
+  async function loadNowPlaying() {
+    try {
+      const res = await fetch('listening.json', { cache: 'no-store' });
+      if (!res.ok) return; // file not there yet, keep placeholder
+      const data = await res.json();
+
+      const label = document.querySelector('.np-label');
+      const song = document.querySelector('.np-song');
+      const artist = document.querySelector('.np-artist');
+      const widget = document.getElementById('now-playing');
+
+      label.textContent = data.isPlaying ? 'Now playing' : 'Last played';
+      song.textContent = data.song;
+      artist.textContent = data.artist;
+      widget.onclick = () => window.open(data.url, '_blank');
+      widget.style.cursor = 'pointer';
+
+      // pause the equalizer bars if nothing is actively playing
+      document.querySelectorAll('.np-bar').forEach(bar => {
+        bar.style.animationPlayState = data.isPlaying ? 'running' : 'paused';
+      });
+    } catch (err) {
+      console.warn('Could not load listening.json:', err);
+      // widget keeps its placeholder text as a graceful fallback
+    }
+  }
+  loadNowPlaying();
+  setInterval(loadNowPlaying, 5 * 60 * 1000); // refresh every 5 min while the tab is open
 
   // ---------- Confetti easter egg ----------
   const confettiCanvas = document.getElementById('confetti-canvas');
