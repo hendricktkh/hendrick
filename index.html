@@ -475,6 +475,83 @@
   @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
   .card .stars { font-size: 0.8rem; opacity: 0.6; margin-left: 0.4rem; }
 
+  /* ---------- See more button ---------- */
+  .see-more-btn { margin-top: 2rem; }
+
+  /* ---------- Modals (all-projects browser + project detail) ---------- */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 4, 22, 0.55);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 2rem;
+    opacity: 1;
+    transition: opacity .25s ease;
+  }
+  .modal-overlay.hidden { opacity: 0; pointer-events: none; }
+  body:not(.dark) .modal-overlay { background: rgba(60, 60, 70, 0.35); }
+
+  .modal {
+    background: var(--panel);
+    border-radius: 24px;
+    padding: 2.2rem;
+    max-width: 900px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 12px 12px 30px var(--shadow-dark), -12px -12px 30px var(--shadow-light);
+  }
+  body.dark .modal {
+    background: var(--panel-dark);
+    box-shadow: 12px 12px 30px var(--shadow-dark-dm), -12px -12px 30px var(--shadow-light-dm);
+  }
+  .modal.modal-small { max-width: 460px; }
+
+  .modal-close {
+    position: absolute;
+    top: 1.2rem;
+    right: 1.4rem;
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.6;
+  }
+  .modal-close:hover { opacity: 1; }
+
+  .category-tabs { display: flex; gap: 0.6rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .cat-tab {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: none;
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+    transition: background .2s ease, color .2s ease;
+  }
+  body.dark .cat-tab {
+    background: var(--bg-dark);
+    color: var(--text-dark);
+    box-shadow: inset 2px 2px 4px var(--shadow-dark-dm), inset -2px -2px 4px var(--shadow-light-dm);
+  }
+  .cat-tab.active { background: var(--accent); color: #fff; box-shadow: none; }
+  body.dark .cat-tab.active { background: var(--accent-dm); color: #fff; }
+
+  .detail-title { font-family: var(--font-display); font-size: 1.6rem; margin: 0.5rem 0 0.8rem; }
+  .detail-blurb { line-height: 1.6; opacity: 0.85; margin-bottom: 1rem; }
+  #detail-tags { margin-bottom: 1.5rem; }
+  #detail-repo-link { display: inline-block; text-decoration: none; }
+
   /* ---------- Now Playing widget ---------- */
   .now-playing {
     position: fixed;
@@ -624,38 +701,34 @@
 
   <section id="work">
     <h2 class="section-title">have a look at what i've made<span class="dot">.</span></h2>
-    <!-- Set your GitHub username below to pull repos live -->
-    <div class="grid">
-
-      <div class="card">
-        <h3>Project Name</h3>
-        <p>What it is, what it does, why you made it. A sentence or two is plenty — this is the part people actually read.</p>
-        <div>
-          <span class="tag">JavaScript</span><span class="tag">Fun</span>
-        </div>
-        <a href="https://github.com/hendricktkh/REPO-NAME" target="_blank" rel="noopener">code ↗</a>
-      </div>
-
-      <div class="card">
-        <h3>Project Name</h3>
-        <p>What it is, what it does, why you made it. A sentence or two is plenty — this is the part people actually read.</p>
-        <div>
-          <span class="tag">Python</span><span class="tag">Experiment</span>
-        </div>
-        <a href="https://github.com/hendricktkh/REPO-NAME" target="_blank" rel="noopener">code ↗</a>
-      </div>
-
-      <div class="card">
-        <h3>Project Name</h3>
-        <p>What it is, what it does, why you made it. A sentence or two is plenty — this is the part people actually read.</p>
-        <div>
-          <span class="tag">CSS</span><span class="tag">Design</span>
-        </div>
-        <a href="https://github.com/hendricktkh/REPO-NAME" target="_blank" rel="noopener">code ↗</a>
-      </div>
-
-    </div>
+    <div class="grid" id="preview-grid"><!-- filled by JS from the projects array below --></div>
+    <button class="btn see-more-btn" id="see-more-btn">see more →</button>
   </section>
+
+  <!-- All-projects browser -->
+  <div id="projects-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <button class="modal-close" data-close="projects-modal">&times;</button>
+      <h2 class="section-title" style="margin-bottom:1rem;">all my projects<span class="dot">.</span></h2>
+      <div class="category-tabs">
+        <button class="cat-tab active" data-cat="all">all</button>
+        <button class="cat-tab" data-cat="fun">random / fun</button>
+        <button class="cat-tab" data-cat="serious">serious mode</button>
+      </div>
+      <div class="grid" id="all-projects-grid"></div>
+    </div>
+  </div>
+
+  <!-- Single project detail, repo link only shows up here -->
+  <div id="project-detail-modal" class="modal-overlay hidden">
+    <div class="modal modal-small">
+      <button class="modal-close" data-close="project-detail-modal">&times;</button>
+      <h3 id="detail-title" class="detail-title"></h3>
+      <p id="detail-blurb" class="detail-blurb"></p>
+      <div id="detail-tags"></div>
+      <a id="detail-repo-link" class="btn primary" target="_blank" rel="noopener">view code ↗</a>
+    </div>
+  </div>
 
   <section id="about" class="about">
     <div class="about-blob"></div>
@@ -743,6 +816,109 @@
   // (Live GitHub repo pulling removed — project cards are now hand-written above,
   // each with a small "code ↗" link to the actual repo at the bottom.)
 
+  // ---------- Projects: data, preview grid, see-more browser, detail modal ----------
+  const projects = [
+    {
+      id: 'project-1',
+      title: 'Project Name',
+      blurb: 'What it is, what it does, why you made it. A sentence or two is plenty — this is the part people actually read.',
+      tags: ['JavaScript', 'Fun'],
+      category: 'fun',
+      repo: 'https://github.com/hendricktkh/REPO-NAME'
+    },
+    {
+      id: 'project-2',
+      title: 'Project Name',
+      blurb: 'What it is, what it does, why you made it. A sentence or two is plenty — this is the part people actually read.',
+      tags: ['Python', 'Experiment'],
+      category: 'serious',
+      repo: 'https://github.com/hendricktkh/REPO-NAME'
+    },
+    {
+      id: 'project-3',
+      title: 'Project Name',
+      blurb: 'What it is, what it does, why you made it. A sentence or two is plenty — this is the part people actually read.',
+      tags: ['CSS', 'Design'],
+      category: 'fun',
+      repo: 'https://github.com/hendricktkh/REPO-NAME'
+    }
+    // Add more here as you build things — id must be unique, category is 'fun' or 'serious'.
+  ];
+
+  function makeCardEl(project) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.cursor = 'pointer';
+    card.innerHTML = `
+      <h3>${project.title}</h3>
+      <p>${project.blurb}</p>
+      <div>${project.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+    `;
+    card.addEventListener('click', () => openDetail(project));
+    tiltify(card);
+    return card;
+  }
+
+  function tiltify(card) {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+      card.style.transform = `perspective(800px) rotateX(${-y / 45}deg) rotateY(${x / 45}deg) translateY(-2px)`;
+    });
+    card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+  }
+
+  function renderPreview() {
+    const grid = document.getElementById('preview-grid');
+    grid.innerHTML = '';
+    projects.slice(0, 3).forEach(p => grid.appendChild(makeCardEl(p)));
+  }
+
+  function renderAllProjects(filter = 'all') {
+    const grid = document.getElementById('all-projects-grid');
+    grid.innerHTML = '';
+    projects
+      .filter(p => filter === 'all' || p.category === filter)
+      .forEach(p => grid.appendChild(makeCardEl(p)));
+  }
+
+  function openDetail(project) {
+    document.getElementById('detail-title').textContent = project.title;
+    document.getElementById('detail-blurb').textContent = project.blurb;
+    document.getElementById('detail-tags').innerHTML = project.tags.map(t => `<span class="tag">${t}</span>`).join('');
+    document.getElementById('detail-repo-link').href = project.repo;
+    document.getElementById('project-detail-modal').classList.remove('hidden');
+  }
+
+  document.getElementById('see-more-btn').addEventListener('click', () => {
+    renderAllProjects('all');
+    document.getElementById('projects-modal').classList.remove('hidden');
+  });
+
+  document.querySelectorAll('.cat-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderAllProjects(tab.dataset.cat);
+    });
+  });
+
+  document.querySelectorAll('.modal-close').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById(btn.dataset.close).classList.add('hidden');
+    });
+  });
+
+  // click outside the modal panel to close it
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) overlay.classList.add('hidden');
+    });
+  });
+
+  renderPreview();
+
   // ---------- Live Spotify "Now Playing" data ----------
   async function loadNowPlaying() {
     try {
@@ -797,8 +973,8 @@
   const confettiColors = ['#ff6b5e', '#6ee7c7', '#b26bff', '#ff6ec7', '#ffd166'];
   let particles = [];
 
-  function burstConfetti(x, y) {
-    for (let i = 0; i < 26; i++) {
+  function burstConfetti(x, y, count = 26) {
+    for (let i = 0; i < count; i++) {
       particles.push({
         x, y,
         vx: (Math.random() - 0.5) * 8,
@@ -807,17 +983,45 @@
         color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
         rotation: Math.random() * Math.PI * 2,
         spin: (Math.random() - 0.5) * 0.3,
-        life: 0
+        life: 0,
+        maxLife: 120
       });
     }
     if (!animating) { animating = true; animateConfetti(); }
+  }
+
+  // Full-screen confetti rain, hard-capped at ~6 seconds total (first drop to last particle gone)
+  function megaConfettiFill() {
+    const fps = 60;
+    const totalFrames = Math.round(6 * fps); // 6 seconds total
+    const waves = [0, 24, 54]; // frame offsets for each spawn wave (~0s, 0.4s, 0.9s)
+
+    waves.forEach(offsetFrames => {
+      setTimeout(() => {
+        for (let i = 0; i < 70; i++) {
+          particles.push({
+            x: Math.random() * confettiCanvas.width,
+            y: -20 - Math.random() * 150,
+            vx: (Math.random() - 0.5) * 2.5,
+            vy: Math.random() * 1.5 + 1.5,
+            size: Math.random() * 7 + 4,
+            color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+            rotation: Math.random() * Math.PI * 2,
+            spin: (Math.random() - 0.5) * 0.25,
+            life: 0,
+            maxLife: totalFrames - offsetFrames // ensures everything ends by the same 6s mark
+          });
+        }
+        if (!animating) { animating = true; animateConfetti(); }
+      }, (offsetFrames / fps) * 1000);
+    });
   }
 
   let animating = false;
   function animateConfetti() {
     ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
     particles.forEach(p => {
-      p.vy += 0.25; // gravity
+      p.vy += 0.2; // gravity
       p.x += p.vx;
       p.y += p.vy;
       p.rotation += p.spin;
@@ -829,7 +1033,7 @@
       ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
       ctx.restore();
     });
-    particles = particles.filter(p => p.life < 120 && p.y < confettiCanvas.height + 40);
+    particles = particles.filter(p => p.life < p.maxLife && p.y < confettiCanvas.height + 40);
     if (particles.length > 0) {
       requestAnimationFrame(animateConfetti);
     } else {
@@ -838,10 +1042,20 @@
     }
   }
 
+  let confettiClickCount = 0;
   document.addEventListener('click', e => {
     // skip confetti on toggle so theme switching stays quiet
     if (e.target.closest('#themeToggle')) return;
-    burstConfetti(e.clientX, e.clientY);
+
+    confettiClickCount++;
+
+    if (confettiClickCount >= 10) {
+      megaConfettiFill();
+      confettiClickCount = 0; // reset so the escalation builds again toward the next big one
+    } else {
+      const scaledCount = 16 + confettiClickCount * 8; // grows bigger with each click
+      burstConfetti(e.clientX, e.clientY, scaledCount);
+    }
   });
 </script>
 
