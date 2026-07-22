@@ -709,12 +709,8 @@
   <div id="projects-modal" class="modal-overlay hidden">
     <div class="modal">
       <button class="modal-close" data-close="projects-modal">&times;</button>
-      <h2 class="section-title" style="margin-bottom:1rem;">all my projects<span class="dot">.</span></h2>
-      <div class="category-tabs">
-        <button class="cat-tab active" data-cat="all">all</button>
-        <button class="cat-tab" data-cat="fun">random / fun</button>
-        <button class="cat-tab" data-cat="serious">serious mode</button>
-      </div>
+      <h2 class="section-title" style="margin-bottom:0.4rem;">all my projects<span class="dot">.</span></h2>
+      <p style="opacity:0.6; font-size:0.85rem; margin: 0 0 1.5rem;">pulled live from GitHub, most recent first</p>
       <div class="grid" id="all-projects-grid"></div>
     </div>
   </div>
@@ -817,33 +813,33 @@
   // each with a small "code ↗" link to the actual repo at the bottom.)
 
   // ---------- Projects: data, preview grid, see-more browser, detail modal ----------
-  const projects = [
-    {
-      id: 'project-1',
-      title: 'Project Name',
-      blurb: 'What it is, what it does, why you made it. A sentence or two is plenty — this is the part people actually read.',
-      tags: ['JavaScript', 'Fun'],
-      category: 'fun',
-      repo: 'https://github.com/hendricktkh/REPO-NAME'
-    },
-    {
-      id: 'project-2',
-      title: 'Project Name',
-      blurb: 'What it is, what it does, why you made it. A sentence or two is plenty — this is the part people actually read.',
-      tags: ['Python', 'Experiment'],
-      category: 'serious',
-      repo: 'https://github.com/hendricktkh/REPO-NAME'
-    },
-    {
-      id: 'project-3',
-      title: 'Project Name',
-      blurb: 'What it is, what it does, why you made it. A sentence or two is plenty — this is the part people actually read.',
-      tags: ['CSS', 'Design'],
-      category: 'fun',
-      repo: 'https://github.com/hendricktkh/REPO-NAME'
+  const GITHUB_USERNAME = 'hendricktkh';
+  let projects = []; // populated live from GitHub, most-recently-pushed first
+
+  async function fetchGithubProjects() {
+    try {
+      const res = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=pushed&direction=desc&per_page=100`);
+      if (!res.ok) throw new Error(`GitHub API responded ${res.status}`);
+      const repos = await res.json();
+
+      projects = repos
+        .filter(r => !r.fork) // skip forks, only show your own work
+        .map(r => ({
+          id: r.id,
+          title: r.name,
+          blurb: r.description || 'No description yet — take a look at the code to see what it does.',
+          tags: [r.language, r.stargazers_count > 0 ? `★ ${r.stargazers_count}` : null].filter(Boolean),
+          repo: r.html_url,
+          pushedAt: r.pushed_at
+        }));
+      // already sorted by the API (pushed desc), but sort again client-side to be safe
+      projects.sort((a, b) => new Date(b.pushedAt) - new Date(a.pushedAt));
+    } catch (err) {
+      console.warn('Could not load GitHub projects:', err);
+      projects = []; // preview/see-more will just show nothing rather than break
     }
-    // Add more here as you build things — id must be unique, category is 'fun' or 'serious'.
-  ];
+    renderPreview();
+  }
 
   function makeCardEl(project) {
     const card = document.createElement('div');
@@ -869,18 +865,31 @@
     card.addEventListener('mouseleave', () => { card.style.transform = ''; });
   }
 
+  function skeletonCard() {
+    const card = document.createElement('div');
+    card.className = 'card skeleton';
+    card.innerHTML = `<h3>Loading&hellip;</h3><p>Fetching your latest repos from GitHub.</p><div><span class="tag">&nbsp;&nbsp;&nbsp;</span></div>`;
+    return card;
+  }
+
   function renderPreview() {
     const grid = document.getElementById('preview-grid');
     grid.innerHTML = '';
+    if (projects.length === 0) {
+      const p = document.createElement('p');
+      p.style.opacity = '0.6';
+      p.style.fontSize = '0.9rem';
+      p.textContent = 'Could not load projects from GitHub right now — try refreshing.';
+      grid.appendChild(p);
+      return;
+    }
     projects.slice(0, 3).forEach(p => grid.appendChild(makeCardEl(p)));
   }
 
-  function renderAllProjects(filter = 'all') {
+  function renderAllProjects() {
     const grid = document.getElementById('all-projects-grid');
     grid.innerHTML = '';
-    projects
-      .filter(p => filter === 'all' || p.category === filter)
-      .forEach(p => grid.appendChild(makeCardEl(p)));
+    projects.forEach(p => grid.appendChild(makeCardEl(p)));
   }
 
   function openDetail(project) {
@@ -892,16 +901,8 @@
   }
 
   document.getElementById('see-more-btn').addEventListener('click', () => {
-    renderAllProjects('all');
+    renderAllProjects();
     document.getElementById('projects-modal').classList.remove('hidden');
-  });
-
-  document.querySelectorAll('.cat-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      renderAllProjects(tab.dataset.cat);
-    });
   });
 
   document.querySelectorAll('.modal-close').forEach(btn => {
@@ -917,7 +918,13 @@
     });
   });
 
-  renderPreview();
+  // show skeleton cards immediately, then swap in real data once GitHub responds
+  const previewGridEl = document.getElementById('preview-grid');
+  previewGridEl.innerHTML = '';
+  previewGridEl.appendChild(skeletonCard());
+  previewGridEl.appendChild(skeletonCard());
+  previewGridEl.appendChild(skeletonCard());
+  fetchGithubProjects();
 
   // ---------- Live Spotify "Now Playing" data ----------
   async function loadNowPlaying() {
