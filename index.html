@@ -552,30 +552,6 @@
   #detail-tags { margin-bottom: 1.5rem; }
   #detail-repo-link { display: inline-block; text-decoration: none; }
 
-  /* ---------- Rainbow strobe (10th-click confetti storm) ---------- */
-  body.rainbow-strobe::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: 9990;
-    pointer-events: none;
-    mix-blend-mode: color;
-    opacity: 0.55;
-    animation: rainbowStrobe 0.5s steps(1) infinite;
-  }
-  @keyframes rainbowStrobe {
-    0%   { background: #ff6b5e; }
-    16%  { background: #ffd166; }
-    33%  { background: #6ee7c7; }
-    50%  { background: #6ec7ff; }
-    66%  { background: #b26bff; }
-    83%  { background: #ff6ec7; }
-    100% { background: #ff6b5e; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    body.rainbow-strobe::before { animation: none; display: none; }
-  }
-
   /* ---------- Now Playing widget ---------- */
   .now-playing {
     position: fixed;
@@ -1044,33 +1020,56 @@
   let lastMouseY = window.innerHeight / 2;
   window.addEventListener('mousemove', e => { lastMouseX = e.clientX; lastMouseY = e.clientY; });
 
+  // Track cursor position (kept for potential future use, harmless to leave)
+  let lastMouseX = window.innerWidth / 2;
+  let lastMouseY = window.innerHeight / 2;
+  window.addEventListener('mousemove', e => { lastMouseX = e.clientX; lastMouseY = e.clientY; });
+
   let storming = false;
-  function startConfettiStorm() {
+  function startConfettiFill() {
     storming = true;
-    document.body.classList.add('rainbow-strobe');
+    const fps = 60;
+    const durationMs = 4000; // 4 seconds total, continuous spawn (not staggered waves)
+    const totalFrames = Math.round((durationMs / 1000) * fps);
+    const startTime = performance.now();
 
     const emitInterval = setInterval(() => {
-      burstConfetti(lastMouseX, lastMouseY, 5);
-    }, 45);
+      const elapsed = performance.now() - startTime;
+      const framesLeft = totalFrames - Math.round((elapsed / 1000) * fps);
+      for (let i = 0; i < 14; i++) {
+        particles.push({
+          x: Math.random() * confettiCanvas.width,
+          y: -20 - Math.random() * 100,
+          vx: (Math.random() - 0.5) * 2.5,
+          vy: Math.random() * 1.5 + 1.5,
+          size: Math.random() * 7 + 4,
+          color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+          rotation: Math.random() * Math.PI * 2,
+          spin: (Math.random() - 0.5) * 0.25,
+          life: 0,
+          maxLife: Math.max(framesLeft, 20) // everything still clears out by the 4s mark
+        });
+      }
+      if (!animating) { animating = true; animateConfetti(); }
+    }, 40); // continuous spawn tick, not discrete waves
 
     setTimeout(() => {
       clearInterval(emitInterval);
       storming = false;
-      document.body.classList.remove('rainbow-strobe');
-    }, 6000); // hard stop at 6 seconds, matching the emission window
+    }, durationMs);
   }
 
   let confettiClickCount = 0;
   document.addEventListener('click', e => {
     // skip confetti on toggle so theme switching stays quiet
     if (e.target.closest('#themeToggle')) return;
-    if (storming) return; // storm mode is already emitting continuously, ignore extra clicks
+    if (storming) return; // fill mode is already running, ignore extra clicks until it's done
 
     confettiClickCount++;
 
     if (confettiClickCount >= 10) {
-      startConfettiStorm();
-      confettiClickCount = 0; // resets so it builds gradually toward the next storm
+      startConfettiFill();
+      confettiClickCount = 0; // resets so the gradual buildup starts fresh toward the next fill
     } else {
       const scaledCount = 3 + confettiClickCount * 2; // small, clearly gradual growth: 5, 7, 9, 11...
       burstConfetti(e.clientX, e.clientY, scaledCount);
