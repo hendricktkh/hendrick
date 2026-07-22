@@ -246,7 +246,7 @@
 
   .greet-track span {
     font-family: var(--font-display);
-    font-size: clamp(1.6rem, 3.8vw, 2.4rem);
+    font-size: clamp(3.2rem, 8.8vw, 9.6rem);
     font-weight: 400;
     color: var(--text);
     white-space: nowrap;
@@ -273,7 +273,7 @@
 
   /* ---------- Hero: static text section ---------- */
   .hero-static {
-    padding: 2.5rem 0 3rem;
+    padding: 1rem 0 3rem;
   }
 
   .hero-static p {
@@ -775,13 +775,15 @@
 .greet-wrap {
   width: 100vw;
   margin-left: calc(50% - 50vw);
-  padding: 1.5rem 0 2rem;
+  padding: 0;
   overflow: hidden;
   background: transparent;
   user-select: none;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  min-height:85vh;
+  justify-content:center;
 }
 .greet-track {
   display: flex;
@@ -791,7 +793,7 @@
 }
 .greet-track span {
   font-family: var(--font-voice, Georgia, serif);
-  font-size: clamp(4rem, 11vw, 12rem);
+  font-size: clamp(3.2rem, 8.8vw, 9.6rem);
   font-weight: 400;
   color: var(--text-primary);
   white-space: nowrap;
@@ -806,10 +808,10 @@
   color: var(--text-secondary);
 }
 .row-left .greet-track {
-  animation: scrollLeft 38s linear infinite;
+  animation: scrollLeft 51.3s linear infinite;
 }
 .row-right .greet-track {
-  animation: scrollRight 42s linear infinite;
+  animation: scrollRight 56.7s linear infinite;
 }
 @keyframes scrollLeft {
   0%   { transform: translateX(0); }
@@ -886,7 +888,7 @@
   </div>
 
   <div class="row-left" style="display:flex;overflow:hidden;">
-    <div class="greet-track" style="animation-duration:46s;">
+    <div class="greet-track" style="animation-duration:62.1s;">
       <span class="dim">dobrý den</span><span class="dot">·</span>
       <span>ਸਤ ਸ੍ਰੀ ਅਕਾਲ</span><span class="dot">·</span>
       <span class="mid">góðan dag</span><span class="dot">·</span>
@@ -911,6 +913,19 @@
       <span class="dim">mingalaba</span><span class="dot">·</span>
       <span>tere</span><span class="dot">·</span>
       <span class="mid">labas</span><span class="dot">·</span>
+    </div>
+  </div>
+
+  <div class="row-right" style="display:flex;overflow:hidden;">
+    <div class="greet-track" style="animation-duration:70.2s;">
+      <span>good morning</span><span class="dot">·</span><span>hello</span><span class="dot">·</span><span>welcome</span><span class="dot">·</span>
+      <span>good morning</span><span class="dot">·</span><span>hello</span><span class="dot">·</span><span>welcome</span><span class="dot">·</span>
+    </div>
+  </div>
+  <div class="row-left" style="display:flex;overflow:hidden;">
+    <div class="greet-track" style="animation-duration:73s;">
+      <span>hi there</span><span class="dot">·</span><span>greetings</span><span class="dot">·</span><span>have a great day</span><span class="dot">·</span>
+      <span>hi there</span><span class="dot">·</span><span>greetings</span><span class="dot">·</span><span>have a great day</span><span class="dot">·</span>
     </div>
   </div>
 </div>
@@ -945,7 +960,7 @@
     </div>
 
   <div class="row-right" style="display:flex;overflow:hidden;">
-    <div class="greet-track" style="animation-duration:52s;">
+    <div class="greet-track" style="animation-duration:70.2s;">
       <span class="mid">good morning</span><span class="dot">·</span>
       <span class="dim">bonjour</span><span class="dot">·</span>
       <span>你好</span><span class="dot">·</span>
@@ -968,7 +983,7 @@
   </div>
 
   <div class="row-left" style="display:flex;overflow:hidden;">
-    <div class="greet-track" style="animation-duration:58s;">
+    <div class="greet-track" style="animation-duration:73s;">
       <span class="dim">welcome</span><span class="dot">·</span>
       <span>salut</span><span class="dot">·</span>
       <span class="mid">xin chào</span><span class="dot">·</span>
