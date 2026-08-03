@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Another test</title>
+<meta name="author" content="Hendrick">
+<meta name="date" content="2026-08-03">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400;1,600&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #150a24;
+    --text: #e9e2f7;
+    --muted: #6b5f82;
+    --accent: #ff6b5e;
+    --accent-2: #b26bff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    line-height: 1.8;
+  }
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    margin-bottom: 3rem;
+    transition: color .2s;
+  }
+  .back:hover { color: var(--text); }
+  h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(2rem, 6vw, 3rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 0.75rem;
+  }
+  .meta {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #2a1a40;
+  }
+  .meta .tag {
+    display: inline-block;
+    background: #2a1a40;
+    color: var(--accent-2);
+    font-size: 0.65rem;
+    padding: 2px 10px;
+    border-radius: 20px;
+    margin-left: 8px;
+    letter-spacing: 0.04em;
+    text-transform: lowercase;
+  }
+  h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 2.5rem 0 0.75rem;
+    letter-spacing: -0.02em;
+  }
+  h3 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--accent-2);
+    margin: 2rem 0 0.5rem;
+  }
+  p { margin: 0 0 1.1rem; }
+  ul, ol { margin: 0 0 1.1rem 1.4rem; }
+  li { margin-bottom: 0.35rem; }
+  strong { color: #fff; font-weight: 600; }
+  em { color: #c4b8e0; font-style: italic; }
+  code {
+    background: #2a1a40;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 0.85em;
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    color: var(--accent);
+  }
+  blockquote {
+    border-left: 3px solid var(--accent);
+    padding: 0.5rem 0 0.5rem 1.2rem;
+    color: var(--muted);
+    margin: 0 0 1.1rem;
+    font-style: italic;
+  }
+  hr { border: none; border-top: 1px solid #2a1a40; margin: 2.5rem 0; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<a href="index.html" class="back">← Blog</a>
+<h1>Another test</h1>
+<p class="meta">2026-08-03 · Hendrick</p>
+<p>Writing in conjunction with the holiday that's called the Day Of The Dead.</p>
+
+</body>
+</html>
