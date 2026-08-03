@@ -1150,7 +1150,7 @@
     el.addEventListener('mouseenter',()=>setBlobHover(true));
     el.addEventListener('mouseleave',()=>setBlobHover(false));
   });
-  document.addEventListener('mouseover',e=>{ const c=e.target.closest('.card'); if(c) setBlobHover(true,'view'); });
+  document.addEventListener('mouseover',e=>{ const c=e.target.closest('.card'); if(c) setBlobHover(true); });
   document.addEventListener('mouseout', e=>{ const c=e.target.closest('.card'); if(c&&!e.relatedTarget?.closest('.card')) setBlobHover(false); });
 
   // ============================================================
