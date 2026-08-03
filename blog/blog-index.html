@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>blog · hendrick</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400;1,600&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #e8ebf0;
+    --bg-dark: #150a24;
+    --panel: #e8ebf0;
+    --panel-dark: #1f1033;
+    --shadow-light: #ffffff;
+    --shadow-dark: #c3c8d1;
+    --shadow-light-dm: #2c1848;
+    --shadow-dark-dm: #0a0416;
+    --text: #2c2e33;
+    --text-dark: #e9e2f7;
+    --accent: #ff6b5e;
+    --accent-2: #6ee7c7;
+    --accent-dm: #b26bff;
+    --accent-2-dm: #ff6ec7;
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-body: 'Space Grotesk', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    transition: background .4s ease, color .4s ease;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  body.dark {
+    background: var(--bg-dark);
+    color: var(--text-dark);
+  }
+
+  /* ── Cursor blob ── */
+  #blob {
+    position: fixed;
+    top: 0; left: 0;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 9999;
+    transition: width .2s ease, height .2s ease, opacity .2s ease, background .3s ease;
+    mix-blend-mode: multiply;
+    will-change: transform;
+  }
+  body.dark #blob { mix-blend-mode: screen; background: var(--accent-dm); }
+
+  /* ── Header ── */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .logo {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .toggle {
+    width: 54px; height: 30px;
+    border-radius: 30px;
+    background: var(--panel);
+    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+    position: relative;
+    cursor: pointer;
+    border: none;
+    flex-shrink: 0;
+  }
+  body.dark .toggle {
+    background: var(--panel-dark);
+    box-shadow: inset 4px 4px 8px var(--shadow-dark-dm), inset -4px -4px 8px var(--shadow-light-dm);
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--accent);
+    transform: translateX(24px);
+    transition: transform .3s ease;
+  }
+  body.dark .toggle::after { transform: translateX(0); background: var(--accent-dm); }
+
+  /* ── Main layout ── */
+  main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 2rem 6rem;
+  }
+
+  /* ── Hero ── */
+  .blog-hero {
+    padding: 3rem 0 3.5rem;
+  }
+
+  .blog-hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin-bottom: 1rem;
+  }
+
+  .blog-hero h1 .dot { color: var(--accent); }
+  body.dark .blog-hero h1 .dot { color: var(--accent-dm); }
+
+  .blog-hero p {
+    font-size: 1rem;
+    opacity: 0.6;
+    max-width: 380px;
+    line-height: 1.6;
+  }
+
+  /* ── Posts grid ── */
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 800px) { .posts-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 550px) { .posts-grid { grid-template-columns: 1fr; } }
+
+  /* ── Post card (same neumorphic style as site) ── */
+  .post-card {
+    position: relative;
+    border-radius: 20px;
+    padding: 1.6rem;
+    cursor: pointer;
+    overflow: hidden;
+    background: var(--panel);
+    box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+    transition: box-shadow .25s ease, transform .25s ease;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  body.dark .post-card {
+    background: var(--panel-dark);
+    box-shadow: 8px 8px 16px var(--shadow-dark-dm), -8px -8px 16px var(--shadow-light-dm);
+  }
+
+  .post-card::before,
+  .post-card::after {
+    position: absolute;
+    content: "";
+    width: 22%; height: 22%;
+    transition: width .45s cubic-bezier(.4,0,.2,1), height .45s cubic-bezier(.4,0,.2,1),
+                border-radius .45s cubic-bezier(.4,0,.2,1), opacity .3s ease;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .post-card::before {
+    top: 0; right: 0;
+    border-radius: 0 20px 0 100%;
+    background: linear-gradient(225deg, var(--accent), #ffb3ae);
+    opacity: 0.18;
+  }
+  .post-card::after {
+    bottom: 0; left: 0;
+    border-radius: 0 100% 0 20px;
+    background: linear-gradient(45deg, var(--accent-2), #a8f5e4);
+    opacity: 0.18;
+  }
+  body.dark .post-card::before {
+    background: linear-gradient(225deg, var(--accent-dm), #7a3fff);
+    opacity: 0.22;
+  }
+  body.dark .post-card::after {
+    background: linear-gradient(45deg, var(--accent-2-dm), #ff3da8);
+    opacity: 0.22;
+  }
+
+  .post-card:hover::before, .post-card:hover::after {
+    width: 100%; height: 100%;
+    border-radius: 20px;
+    opacity: 0.1;
+  }
+
+  .post-card:hover {
+    box-shadow: 12px 12px 28px var(--shadow-dark), -12px -12px 28px var(--shadow-light);
+    transform: translateY(-3px);
+  }
+  body.dark .post-card:hover {
+    box-shadow: 12px 12px 28px var(--shadow-dark-dm), -12px -12px 28px var(--shadow-light-dm);
+    transform: translateY(-3px);
+  }
+
+  .post-card-inner { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+
+  .post-date {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.45;
+  }
+
+  .post-title {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+
+  .post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: auto;
+    padding-top: 0.5rem;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    background: var(--bg);
+    box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+  }
+  body.dark .tag {
+    background: var(--bg-dark);
+    box-shadow: inset 2px 2px 4px var(--shadow-dark-dm), inset -2px -2px 4px var(--shadow-light-dm);
+  }
+
+  .post-arrow {
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-weight: 600;
+    position: relative; z-index: 1;
+    align-self: flex-end;
+    margin-top: 0.25rem;
+  }
+  body.dark .post-arrow { color: var(--accent-dm); }
+
+  /* ── Empty state ── */
+  .empty {
+    grid-column: 1/-1;
+    padding: 3rem 0;
+    opacity: 0.5;
+    font-size: 0.95rem;
+  }
+
+  /* ── Skeleton ── */
+  .post-card.skeleton .post-date,
+  .post-card.skeleton .post-title,
+  .post-card.skeleton .tag {
+    background: var(--shadow-dark);
+    color: transparent;
+    border-radius: 6px;
+    animation: pulse 1.4s ease-in-out infinite;
+    box-shadow: none;
+  }
+  body.dark .post-card.skeleton .post-date,
+  body.dark .post-card.skeleton .post-title,
+  body.dark .post-card.skeleton .tag {
+    background: var(--shadow-dark-dm);
+  }
+  @keyframes pulse { 0%,100%{opacity:.5}50%{opacity:1} }
+
+  /* ── Back link ── */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    opacity: 0.5;
+    text-decoration: none;
+    color: inherit;
+    margin-bottom: 2.5rem;
+    transition: opacity .2s ease;
+  }
+  .back-link:hover { opacity: 1; }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.8rem;
+    opacity: 0.5;
+  }
+
+  /* ── Fade in ── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity .5s ease, transform .5s ease;
+  }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body class="dark">
+
+<div id="blob"></div>
+
+<header>
+  <a href="../index.html" class="logo">hendrick.</a>
+  <button class="toggle" id="themeToggle" aria-label="Toggle dark mode"></button>
+</header>
+
+<main>
+  <a href="../index.html" class="back-link">← back home</a>
+
+  <div class="blog-hero fade-in">
+    <h1>blog<span class="dot">.</span></h1>
+    <p>things i think about. stuff i make. whatever feels worth writing down.</p>
+  </div>
+
+  <div class="posts-grid" id="posts-grid">
+    <!-- skeletons while loading -->
+    <div class="post-card skeleton">
+      <div class="post-card-inner">
+        <span class="post-date">loading</span>
+        <span class="post-title">fetching posts&hellip;</span>
+        <div class="post-tags"><span class="tag">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+      </div>
+    </div>
+    <div class="post-card skeleton">
+      <div class="post-card-inner">
+        <span class="post-date">loading</span>
+        <span class="post-title">fetching posts&hellip;</span>
+        <div class="post-tags"><span class="tag">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+      </div>
+    </div>
+    <div class="post-card skeleton">
+      <div class="post-card-inner">
+        <span class="post-date">loading</span>
+        <span class="post-title">fetching posts&hellip;</span>
+        <div class="post-tags"><span class="tag">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>built with my feeble fingers · hosted on GitHub Pages</footer>
+
+<script>
+// ── Theme ──
+const toggle = document.getElementById('themeToggle');
+if (localStorage.getItem('theme') === 'light') document.body.classList.remove('dark');
+toggle.addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+  localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+});
+
+// ── Cursor blob ──
+const blob = document.getElementById('blob');
+const mouse = { x: window.innerWidth/2, y: window.innerHeight/2 };
+const pos = { x: mouse.x, y: mouse.y };
+const coarse = window.matchMedia('(pointer:coarse)').matches;
+window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+function tickBlob() {
+  pos.x += (mouse.x - pos.x) * .18;
+  pos.y += (mouse.y - pos.y) * .18;
+  blob.style.transform = `translate(${pos.x}px,${pos.y}px) translate(-50%,-50%)`;
+  requestAnimationFrame(tickBlob);
+}
+if (!coarse) requestAnimationFrame(tickBlob);
+else blob.style.display = 'none';
+document.querySelectorAll('a,button').forEach(el => {
+  el.addEventListener('mouseenter', () => { blob.style.width='50px'; blob.style.height='50px'; blob.style.opacity='.3'; });
+  el.addEventListener('mouseleave', () => { blob.style.width='26px'; blob.style.height='26px'; blob.style.opacity='.5'; });
+});
+
+// ── Fade in ──
+const obs = new IntersectionObserver(entries => entries.forEach(e => {
+  if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+}), { threshold: .1 });
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+// ── Fetch posts from GitHub API ──
+const REPO = 'hendricktkh/hendrick';
+const BRANCH = 'main';
+const FOLDER = 'blog';
+
+async function fetchPosts() {
+  const grid = document.getElementById('posts-grid');
+  try {
+    const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${FOLDER}?ref=${BRANCH}`);
+    if (!res.ok) throw new Error('GitHub API error');
+    const files = await res.json();
+
+    // Filter only .html files, exclude index.html itself
+    const posts = files
+      .filter(f => f.name.endsWith('.html') && f.name !== 'index.html')
+      .map(f => {
+        // Parse date and slug from filename: YYYY-MM-DD-slug.html
+        const match = f.name.match(/^(\d{4}-\d{2}-\d{2})-(.+)\.html$/);
+        const date = match ? match[1] : null;
+        const slug = match ? match[2].replace(/-/g, ' ') : f.name.replace('.html','');
+        return { name: f.name, date, slug, path: f.path, url: `${f.name}` };
+      })
+      .sort((a, b) => (b.date || '').localeCompare(a.date || '')); // newest first
+
+    grid.innerHTML = '';
+
+    if (posts.length === 0) {
+      grid.innerHTML = '<p class="empty">no posts yet. write something.</p>';
+      return;
+    }
+
+    posts.forEach((post, i) => {
+      const card = document.createElement('a');
+      card.className = 'post-card fade-in';
+      card.href = post.url;
+      card.style.transitionDelay = `${i * 0.06}s`;
+
+      const dateStr = post.date
+        ? new Date(post.date + 'T00:00:00').toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' })
+        : '';
+
+      // Capitalise slug words as title
+      const title = post.slug.replace(/\b\w/g, c => c.toUpperCase());
+
+      card.innerHTML = `
+        <div class="post-card-inner">
+          ${dateStr ? `<span class="post-date">${dateStr}</span>` : ''}
+          <span class="post-title">${title}</span>
+          <div class="post-tags"></div>
+        </div>
+        <span class="post-arrow">read →</span>
+      `;
+
+      // Fetch the actual HTML to extract title + tags from meta
+      fetch(post.url)
+        .then(r => r.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          const realTitle = doc.querySelector('title')?.textContent?.replace(' · hendrick','').trim();
+          const tags = doc.querySelector('meta[name="tags"]')?.content;
+          if (realTitle) card.querySelector('.post-title').textContent = realTitle;
+          if (tags) {
+            card.querySelector('.post-tags').innerHTML = tags.split(',').map(t =>
+              `<span class="tag">${t.trim()}</span>`
+            ).join('');
+          }
+        })
+        .catch(() => {}); // silently fail — filename title is fine
+
+      grid.appendChild(card);
+      obs.observe(card);
+    });
+
+  } catch (err) {
+    document.getElementById('posts-grid').innerHTML = `
+      <div class="empty">
+        <p>couldn't load posts right now.</p>
+        <button onclick="location.reload()" style="margin-top:1rem;font-family:var(--font-body);padding:.7rem 1.2rem;border-radius:12px;border:none;cursor:pointer;background:var(--panel);color:var(--text);box-shadow:6px 6px 12px var(--shadow-dark),-6px -6px 12px var(--shadow-light);">try again</button>
+      </div>`;
+  }
+}
+
+fetchPosts();
+</script>
+</body>
+</html>
