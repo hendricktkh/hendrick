@@ -1,9 +1,9 @@
 {
-  "isPlaying": true,
-  "song": "Dry Hands",
+  "isPlaying": false,
+  "song": "Beginning 2",
   "artist": "C418",
-  "album": "Minecraft - Volume Alpha",
-  "albumArt": "https://i.scdn.co/image/ab67616d0000b273aaeb5c9fb6131977995b7f0e",
-  "url": "https://open.spotify.com/track/1gNcPHAiVIQZmqJFJdt3ti",
-  "updatedAt": "2026-08-13T10:33:42.582Z"
+  "album": "Minecraft - Volume Beta",
+  "albumArt": "https://i.scdn.co/image/ab67616d0000b273c918a500a7d16e0cc57bc068",
+  "url": "https://open.spotify.com/track/1dYQgQT34Wm1pSMNeBoT0O",
+  "updatedAt": "2026-08-13T11:26:25.081Z"
 }
